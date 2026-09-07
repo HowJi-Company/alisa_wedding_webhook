@@ -3,9 +3,11 @@ db/firestore.py — Firestore AsyncClient 管理
 提供全域 client 實例，以及 init/close 生命週期函式
 """
 
+import json
 import os
 import logging
 from google.cloud.firestore_v1.async_client import AsyncClient
+from google.oauth2 import service_account
 
 logger = logging.getLogger(__name__)
 
@@ -13,17 +15,35 @@ logger = logging.getLogger(__name__)
 _db: AsyncClient | None = None
 
 
-async def init_firestore() -> None:
+def _build_firestore_client() -> AsyncClient:
     """
-    初始化 Firestore AsyncClient。
-    GOOGLE_APPLICATION_CREDENTIALS 環境變數需指向 serviceAccount.json 路徑。
+    建立 Firestore AsyncClient。
+
+    優先順序：
+    1. GOOGLE_CREDENTIALS_JSON：整份 service account JSON（Railway 用）
+    2. GOOGLE_APPLICATION_CREDENTIALS：本機金鑰檔路徑
+    3. 預設 ADC
     """
-    global _db
+    raw_json = os.environ.get("GOOGLE_CREDENTIALS_JSON", "").strip()
+    if raw_json:
+        info = json.loads(raw_json)
+        credentials = service_account.Credentials.from_service_account_info(info)
+        project_id = info.get("project_id")
+        logger.info("Firestore 使用 GOOGLE_CREDENTIALS_JSON")
+        return AsyncClient(project=project_id, credentials=credentials)
+
     credentials_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
     if credentials_path:
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+        logger.info("Firestore 使用 GOOGLE_APPLICATION_CREDENTIALS")
 
-    _db = AsyncClient()
+    return AsyncClient()
+
+
+async def init_firestore() -> None:
+    """初始化 Firestore AsyncClient。"""
+    global _db
+    _db = _build_firestore_client()
     logger.info("Firestore AsyncClient 建立完成")
 
 

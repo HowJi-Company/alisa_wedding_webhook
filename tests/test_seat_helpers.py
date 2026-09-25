@@ -27,6 +27,10 @@ class SeatFormattingTests(unittest.TestCase):
         result = format_seat_result_text((_entry("吳和洺(素)", 6),))
         self.assertEqual(result, "吳和洺(素) 的座位 在第6桌")
 
+    def test_main_table_result_uses_main_table_label(self) -> None:
+        result = format_seat_result_text((_entry("王小明", "主桌"),))
+        self.assertEqual(result, "王小明 的座位 在主桌")
+
     def test_same_table_group_lists_all_numeric_suffix_variants(self) -> None:
         result = format_seat_result_text(
             (

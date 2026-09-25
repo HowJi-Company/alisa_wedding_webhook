@@ -2,7 +2,7 @@
 婚禮桌位圖 Excel → Firestore 上傳腳本（修正版）
 
 Excel 實際結構（header=None 讀入）：
-  iloc[0]: ['桌次', '主桌', 1, 2, 3, ...]       ← 欄位標題列，略過
+  iloc[0]: ['桌次', '主桌', 1, 2, 3, ...]       ← 真實桌號（主桌或整數）
   iloc[1]: ['桌位名稱', '主桌', '雙連教會1', ...] ← 真正的桌位名稱
   iloc[2]: [1, '宗鶴', '邱聖惠', ...]            ← 賓客資料開始
 
@@ -23,8 +23,8 @@ EXCEL_PATH = "LINE官方使用-桌位表.xlsx"
 SERVICE_ACCOUNT_KEY = "../serviceAccount.json"
 
 
-def _normalize_table_id(cell_value, column_number: int) -> int:
-    """桌號必須完全以 Excel 第一列為準；缺值或格式錯誤直接報錯。"""
+def _normalize_table_id(cell_value, column_number: int) -> int | str:
+    """桌號必須完全以 Excel 第一列為準，僅接受「主桌」或整數。"""
     if not pd.notna(cell_value):
         raise ValueError(f"Excel 第 1 列第 {column_number} 欄缺少桌號，請先補齊後再匯入")
 
@@ -32,27 +32,38 @@ def _normalize_table_id(cell_value, column_number: int) -> int:
     if not text:
         raise ValueError(f"Excel 第 1 列第 {column_number} 欄桌號為空白，請先補齊後再匯入")
 
+    if text == "主桌":
+        return text
+
     try:
-        return int(float(text))
+        numeric_table_id = float(text)
     except ValueError as exc:
         raise ValueError(
-            f"Excel 第 1 列第 {column_number} 欄桌號 '{text}' 不是有效整數，請修正後再匯入"
+            f"Excel 第 1 列第 {column_number} 欄桌號 '{text}' 無效，只能填「主桌」或整數"
         ) from exc
 
+    if not numeric_table_id.is_integer():
+        raise ValueError(
+            f"Excel 第 1 列第 {column_number} 欄桌號 '{text}' 無效，只能填「主桌」或整數"
+        )
+    return int(numeric_table_id)
 
-def _normalize_table_name(table_id: int, raw_table_name) -> str:
+
+def _normalize_table_name(table_id: int | str, raw_table_name) -> str:
     """空白桌名不要存成 nan；若未命名則用桌號產生可讀名稱。"""
     if pd.notna(raw_table_name):
         table_name = str(raw_table_name).strip()
         if table_name and table_name.lower() != "nan":
             return table_name
+    if table_id == "主桌":
+        return "主桌"
     return f"第{table_id}桌"
 
 
 def load_seating_data(path: str) -> tuple[list[dict], list[dict]]:
     df = pd.read_excel(path, header=None)
 
-    # iloc[0, 1:] → 真實桌號（1, 2, 3, ...）
+    # iloc[0, 1:] → 真實桌號（主桌, 1, 2, 3, ...）
     # iloc[1, 1:] → 實際桌位名稱（主桌, 雙連教會1, ...）
     # iloc[2:, 1:] → 賓客資料
     table_ids = df.iloc[0, 1:]

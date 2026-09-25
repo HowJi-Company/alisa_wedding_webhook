@@ -178,7 +178,10 @@ def _combined_score_cached(
 
 
 def _table_sort_key(table: int | str | None) -> tuple[int, object]:
-    """讓桌號輸出順序穩定：數字桌先依數字排序，其餘依字串排序。"""
+    """讓桌號輸出順序穩定：主桌、數字桌、其他文字、未安排。"""
+    if str(table).strip() == "主桌":
+        return (-1, "")
+
     if isinstance(table, int):
         return (0, table)
 
@@ -195,6 +198,8 @@ def _format_table_reference(table: int | str | None) -> str:
     """將桌號格式化為可讀文字。"""
     if table in (None, ""):
         return "未安排桌次"
+    if str(table).strip() == "主桌":
+        return "主桌"
     return f"第{table}桌"
 
 

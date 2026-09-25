@@ -70,7 +70,7 @@ async def handle_venue(
         ]
 
         map_url: str = data.get("venue_map_url", "")
-        map_text = f"📍 地圖導航\n格萊天漾大飯店\n{map_url}" if map_url else "📍 格萊天漾大飯店"
+        map_text = f"📍 地圖導航\n彭園三重館\n{map_url}" if map_url else "📍 彭園三重館"
 
         messages = [
             TemplateMessage(

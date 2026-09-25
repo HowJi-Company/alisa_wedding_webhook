@@ -12,12 +12,10 @@ from utils.line_reply import format_log_context, safe_reply_message
 
 logger = logging.getLogger(__name__)
 
-FALLBACK_MESSAGE = """\
-感謝您的訊息！
-很抱歉，婚禮報報📣僅供資訊公告，無法逐一回覆訊息。
-如有其他需求，歡迎以電話或個人 LINE 直接與新人聯繫噢！
-謝謝您 😊
-婚禮相關資訊請點選下方「婚禮小幫手」 👇"""
+FALLBACK_MESSAGE = (
+    "謝謝您的訊息～ 此帳號僅提供下方圖文選單的自動查詢功能，無法個別回覆訊息。 "
+    "歡迎直接點擊下方按鈕獲取婚禮資訊，若有其他問題請直接聯繫新人，謝謝您的體諒！"
+)
 
 
 async def handle_fallback(

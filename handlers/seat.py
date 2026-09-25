@@ -44,8 +44,7 @@ NOT_YET_MSG = "桌位資訊將於婚禮前一週陸續開放查詢，感謝您�
 THRESHOLD_CONFIRM = 60
 
 # 桌位圖片 URL（回傳桌號時一併附上）
-SEAT_MAP_URL = "https://firebasestorage.googleapis.com/v0/b/alisa-wedding.firebasestorage.app/o/13F%E6%A0%BC%E8%90%8A_43T-01.jpg?alt=media&token=2b73a952-8054-47a2-8bb1-d99cb773836f"
-SEAT_MAP_DETAIL_URL = "https://firebasestorage.googleapis.com/v0/b/alisa-wedding.firebasestorage.app/o/line%E5%AE%98%E6%96%B9%E5%B0%88%E7%94%A8%E6%A1%8C%E4%BD%8D%E5%9C%96(0626).PNG?alt=media&token=21c9479d-3814-4d2b-bd8e-a960368ccd0b"
+SEAT_MAP_URL = "https://firebasestorage.googleapis.com/v0/b/alisa-wedding.firebasestorage.app/o/%E5%A9%9A%E5%AE%B4%E6%A1%8C%E8%A1%A8.png?alt=media&token=2bcc7cf6-be59-404b-9264-33168394dbac"
 SEAT_CACHE_TTL_SECONDS = 900
 TRAILING_NOTE_PATTERN = re.compile(r"\s*[（(][^)）]*[)）]\s*$")
 TRAILING_DIGITS_PATTERN = re.compile(r"\s*\d+\s*$")
@@ -676,10 +675,6 @@ async def _reply_seat_result(
             ImageMessage(
                 original_content_url=SEAT_MAP_URL,
                 preview_image_url=SEAT_MAP_URL,
-            ),
-            ImageMessage(
-                original_content_url=SEAT_MAP_DETAIL_URL,
-                preview_image_url=SEAT_MAP_DETAIL_URL,
             ),
         ],
         context=context,
